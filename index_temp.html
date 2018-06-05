@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>手机链盟</title>
+    <meta charset="UTF-8">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="author" content="" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/jquery.fancybox.css" rel="stylesheet">
+    <link href="css/flickity.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+
+    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/queries.css" rel="stylesheet">
+    <style>
+        .disc-section{
+            margin: 0 0%;
+        }
+    </style>
+</head>
+
+<body>
+
+<script type="text/javascript" src="lib/nebulas.js"></script>
+
+<script type="text/javascript" src="lib/nebPay.js"></script>
+<script type="text/javascript" src="lib/jquery-3.3.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+
+
+
+
+<script>
+    var MobileItem = function(text) {
+        if (text) {
+            var obj = JSON.parse(text);
+            this.author = obj.author;
+            this.phoneId = obj.phoneId;
+            this.pinpai = obj.pinpai;
+            this.model = obj.model;
+            this.price = obj.price;
+        } else {
+            this.author = "";
+            this.phoneId = "";//唯一识别码
+            this.pinpai = "";//品牌;
+            this.model = "";//型号
+            this.price = "";//价格
+        }
+    };
+
+    MobileItem.prototype = {
+        /**
+         *  为了使用LocalContractStorage存储，需要对对象进行序列化
+         * @returns {string}
+         */
+        toString: function () {
+            return JSON.stringify(this);
+        }
+    };
+
+    var  item = new MobileItem();
+    item.author = "111"
+    alert(item.toString());
+</script>
+</body>
+</html>

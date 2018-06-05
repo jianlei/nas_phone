@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>手机链盟</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<script type="text/javascript" src="lib/nebulas.js"></script>
+
+<script type="text/javascript" src="lib/nebPay.js"></script>
+<script type="text/javascript" src="lib/jquery-3.3.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+
+
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <div style="text-align: center">
+                <h1>手机链盟</h1>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <span class="label">分隔符</span>
+                        <div class="list-group">
+                            <a class="list-group-item active">查询公开信</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group col-md-3" style="margin-top:20px;margin-left:20px">
+                <input type="text" class="form-control" placeholder="请输入手机唯一识别码" id="search_title" />
+                <span class="input-group-btn">
+                        <button class="btn btn-info btn-search" id=search>查询</button>
+
+                    </span>
+            </div>
+
+
+
+        </div>
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+            </div>
+        </div>
+
+        <div style="text-align: center">
+            <h1 id=changshang></h1>
+        </div>
+
+        <div id=model style="margin-left:20px"></div>
+
+        <div id=price style="margin-left:20px"></div>
+
+
+
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <span class="label">分隔符</span>
+                    <div class="list-group">
+                        <a class="list-group-item active">立即发布</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-left:20px">
+            <span class="input-group-addon">唯一识别码</span>
+            <input type="text" class="form-control" placeholder="输入您手机的唯一识别码" id="input_phoneId">
+        </div>
+        <div class="input-group" style="margin-top:20px ;margin-left:20px">
+            <span class="input-group-addon">手机厂商</span>
+            <input type="text" class="form-control" placeholder="输入手机厂商，例如苹果" id="input_changshang">
+        </div>
+        <div class="input-group" style="margin-top:20px ;margin-left:20px">
+            <span class="input-group-addon">手机型号</span>
+            <input type="text" class="form-control" placeholder="输入手机型号，例如Iphone X" id="input_model">
+        </div>
+        <div class="input-group" style="margin-top:20px ;margin-left:20px">
+            <span class="input-group-addon">手机价格</span>
+            <input type="text" class="form-control" placeholder="输入手机价格，例如5866" id="input_price">
+        </div>
+        <div  style="text-align: right;margin-top:20px ">
+            <button class="btn btn-info" id=post>提交</button>
+        </div>
+
+
+    </div>
+</body>
+
+
+
+
+
+
+
+<script>
+    "use strict";
+    var dappContactAddress = "n1pwxwJwcUh9B9tNB26es2CVmrxt7SoTtGM";
+    var nebulas = require("nebulas"), Account = Account, neb = new nebulas.Neb();
+    neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"))
+    // neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"))
+    var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+    var nebPay = new NebPay();
+    var serialNumber
+    $("#search").click(function () {
+        if (!$("#search_title").val()) {
+            alter('搜索标题不能为空');
+            return;
+        }
+        $('#content').text("");
+        var from = dappContactAddress
+        var value = "0";
+        var nonce = "0"
+        var gas_price = "1000000"
+        var gas_limit = "2000000"
+        var callFunction = "get";
+        var callArgs = "[\"" + $("#search_title").val() + "\"]";
+        console.log(callArgs);
+        var contract = {
+            "function": callFunction,
+            "args": callArgs
+        }
+        neb.api.call(from, dappContactAddress, value, nonce, gas_price, gas_limit, contract).then(function (resp) {
+            var result = resp.result;
+
+            alert(result);
+            if (result === 'null') {
+                $('#changshang').text("没有发现该手机存在，您可以录入你的手机信息！");
+                $('#model').text("");
+                $('#price').text("");
+                return;
+            }
+            console.log(result);
+            result = JSON.parse(result);
+            $("#changshang").text("厂商:" +result.pinpai);
+            $('#model').text("型号:  " + result.model);
+            $('#price').text("价格：" + result.price);
+        }).catch(function (err) {
+            console.log("error :" + err.message);
+        })
+    })
+    $('#post').click(function () {
+        if (!$("#input_phoneId").val() || !$("#input_changshang").val()|| !$("#input_model").val()|| !$("#input_price").val()) {
+            alert('设备唯一识别码，厂商，型号或者手机价格不能为空');
+            return;
+        }
+        var to = dappContactAddress;
+        var value = "0";
+        var callFunction = "save";
+        var callArgs = "[\"" + $("#input_phoneId").val() + "\",\"" + $("#input_changshang").val() + "\",\"" + $("#input_model").val()+ "\",\"" + $("#input_price").val() + "\"]";
+        console.log(callArgs);
+        serialNumber = nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: function (resp) {
+                console.log("thecallback is " + resp)
+            }
+        });
+    })
+</script>
+
+</html>
